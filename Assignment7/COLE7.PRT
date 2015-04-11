@@ -1,0 +1,464 @@
+
+ASSIST/I Version 2.03, Copyright 1984, BDM Software.                          GRADE RUN FOR: 
+
+
+                                                                                                                            PAGE 1
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+000000                                1 COLE7    START
+                                      2 *********************************************************************
+                                      3 *
+                                      4 *        JONATHON COLE MARLAR
+                                      5 *        ASSIGNMENT 7
+                                      6 *        23 APRIL 2014
+                                      7 *
+                                      8 *        SAVINGS ACCOUNT
+                                      9 *        INPUT:    A FILE CONTAINING NUMERIC DATA IN COLUMNS 1-10
+                                     10 *        EXECUTE:  CALCULATES INITIAL BALANCE, DEPOSITS, WITHDRAWALS,
+                                     11 *                  OR INTEREST CALCULATIONS BASED ON INPUT RECEIVED
+                                     12 *        OUTPUT:   DATA LINES CONTAINING ALL TRANSACTIONS AS WELL AS
+                                     13 *                  TOTAL AMOUNTS OF DEPOSITS, WITHDRAWALS, ETC.
+                                     14 *
+                                     15 *        REG KEY:
+                                     16 *         7: USED TO CALL SUBROUTINES INSIDE OF SUBROUTINES
+                                     17 *        11: USED TO CALL SUBROUTINES IN MAIN PROGRAM
+                                     18 *
+                                     19 *********************************************************************
+                                     20 *
+                                     21 *        BEGINNING HOUSEKEEPING
+000000 90EC D00C            0000C    22          STM   14,12,12(13)
+000004 05C0                          23          BALR  12,0
+000006                               24          USING HERE,12
+000006 50D0 C0D6            000DC    25 HERE     ST    13,SAVEAREA+4
+00000A 41D0 C0D2            000D8    26          LA    13,SAVEAREA
+                                     27 *
+                                     28 *        MAIN DRIVER
+                                     29 *        INITIALIZE COUNTERS AND TOTALS FOR DEPOSITS/WITHDRAWALS
+00000E 45B0 C184            0018A    30          BAL   11,SETUP
+                                     31 *        THE MAIN LOOP
+000012 E000 C11B 000A 00121          32 READLINE XREAD CARD,10
+000018 4740 C0B4            000BA    33          BC    B'0100',ENDOFILE
+00001C 95F0 C11B      00121          34          CLI   CARD,C'0'
+000020 4780 C036            0003C    35          BC    B'1000',INITCALL
+000024 95F1 C11B      00121          36          CLI   CARD,C'1'
+000028 4780 C04C            00052    37          BC    B'1000',DEPOCALL
+00002C 95F2 C11B      00121          38          CLI   CARD,C'2'
+000030 4780 C062            00068    39          BC    B'1000',WDRWCALL
+000034 95F3 C11B      00121          40          CLI   CARD,C'3'
+000038 4780 C078            0007E    41          BC    B'1000',INTRCALL
+                                     42 *        CHECK TO SEE IF INIT HAS ALREADY BEEN CALLED
+00003C 95E3 C164      0016A          43 INITCALL CLI   HAVEINIT,C'T'
+000040 4780 C08E            00094    44          BC    B'1000',RESET
+000044 E020 C11A 0002 00120          45          XPRNT CARDOUT,2
+00004A 45B0 C1B0            001B6    46          BAL   11,INITIAL
+00004E 47F0 C00C            00012    47          BC    B'1111',READLINE
+000052 95E3 C164      0016A          48 DEPOCALL CLI   HAVEINIT,C'T'
+000056 4770 C00C            00012    49          BC    B'0111',READLINE
+00005A E020 C11A 0002 00120          50          XPRNT CARDOUT,2
+000060 45B0 C1DC            001E2    51          BAL   11,DEPOSIT
+
+                                                                                                                            PAGE 2
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+000064 47F0 C00C            00012    52          BC    B'1111',READLINE
+000068 95E3 C164      0016A          53 WDRWCALL CLI   HAVEINIT,C'T'
+00006C 4770 C00C            00012    54          BC    B'0111',READLINE
+000070 E020 C11A 0002 00120          55          XPRNT CARDOUT,2
+000076 45B0 C210            00216    56          BAL   11,WITHDRAW
+00007A 47F0 C00C            00012    57          BC    B'1111',READLINE
+00007E 95E3 C164      0016A          58 INTRCALL CLI   HAVEINIT,C'T'
+000082 4770 C00C            00012    59          BC    B'0111',READLINE
+000086 E020 C11A 0002 00120          60          XPRNT CARDOUT,2
+00008C 45B0 C25A            00260    61          BAL   11,INTEREST
+000090 47F0 C00C            00012    62          BC    B'1111',READLINE
+                                     63 *        RESET IS SIMILAR TO ENDOFILE
+000094 45B0 C2DE            002E4    64 RESET    BAL   11,PRTFINAL
+000098 E020 C3EC 0011 003F2          65          XPRNT =C'0CURRENT BALANCE:',17
+00009E F844 C134 C12A 0013A 00130    66          ZAP   COSTAREA(5),BALANCE(5)
+0000A4 45B0 C2AC            002B2    67          BAL   11,PRNTDOLR
+                                     68 *        BUT THEN IT RESETS EVERYTHING
+0000A8 45B0 C184            0018A    69          BAL   11,SETUP
+0000AC E020 C11A 0002 00120          70          XPRNT CARDOUT,2
+0000B2 45B0 C1B0            001B6    71          BAL   11,INITIAL
+0000B6 47F0 C00C            00012    72          BC    B'1111',READLINE
+0000BA 45B0 C2DE            002E4    73 ENDOFILE BAL   11,PRTFINAL
+0000BE E020 C3EC 0011 003F2          74          XPRNT =C'0CURRENT BALANCE:',17
+0000C4 F844 C134 C12A 0013A 00130    75          ZAP   COSTAREA(5),BALANCE(5)
+0000CA 45B0 C2AC            002B2    76          BAL   11,PRNTDOLR
+                                     77 *
+                                     78 *        END HOUSEKEEPING
+0000CE 58D0 C0D6            000DC    79          L     13,SAVEAREA+4
+0000D2 98EC D00C            0000C    80          LM    14,12,12(13)
+0000D6 07FE                          81          BR    14
+0000D8                               82 SAVEAREA DS    18F
+                                     83 *
+                                     84 *        DECLARE CONSTANTS AND STORAGE
+000120 40                            85 CARDOUT  DC    C' '
+000121                               86 CARD     DS    CL10
+00012C                               87 TEMP     DS    1F
+000130                               88 BALANCE  DS    PL5
+000135                               89 PKDINPUT DS    PL5
+00013A                               90 COSTAREA DS    PL5
+00013F                               91 MINAREA  DS    PL5
+000144                               92 MINTEMP  DS    PL7
+00014B                               93 RATE     DS    PL2
+00014D 4E40404040404040              94 RATEPRNT DC    C'+       '
+000155                               95 RATEOUT  DS    CL5
+00015A 10000C                        96 TOCENTS  DC    P'10000'
+00015D 4E                            97 OUTPUT   DC    C'+'
+00015E                               98 OUTAREA  DS    CL12
+00016A                               99 HAVEINIT DS    C'F'
+                                    100 *        COUNTING AND HOLDING TOTAL DEPOSITS AND WITHDRAWALS
+00016B                              101 WDCOUNT  DS    PL2
+00016D                              102 WDTOTAL  DS    PL5
+000172                              103 DPCOUNT  DS    PL2
+000174                              104 DPTOTAL  DS    PL5
+
+                                                                                                                            PAGE 3
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                    105 *        OUTPUT FOR DEPOSIT AND WITHDRAWAL TOTALS AND AVERAGES
+000179 4E                           106 COUNTPRT DC    C'+'
+00017A                              107 COUNTOUT DS    CL4
+00017E 4E                           108 TOTALPRT DC    C'+'
+00017F                              109 TOTALOUT DS    CL4
+000183                              110 AVERAGE  DS    0PL7
+000183                              111 QUOTIENT DS    PL5
+000188                              112 REMAINDR DS    PL2
+                                    113 *
+
+                                                                                                                            PAGE 4
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+
+SETUP                                                                                                                       PAGE 5
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                    116 *        SETUP
+                                    117 *        PURPOSE: INITIALIZE THE MEMORY LOCATIONS AND PRINTS THE
+                                    118 *        TITLE CARD OF EACH ACCOUNT
+00018A F810 C165 C3FD 0016B 00403   119 SETUP    ZAP   WDCOUNT(2),=P'0'
+000190 F840 C167 C3FD 0016D 00403   120          ZAP   WDTOTAL(5),=P'0'
+000196 F810 C16C C3FD 00172 00403   121          ZAP   DPCOUNT(2),=P'0'
+00019C F840 C16E C3FD 00174 00403   122          ZAP   DPTOTAL(5),=P'0'
+0001A2 F840 C12A C3FD 00130 00403   123          ZAP   BALANCE(5),=P'0'
+                                    124 *        PRINT THE HEADING
+0001A8 E020 C3FE 0027 00404         125          XPRNT =C'-      SAVINGS  ACCOUNT  REPORT        ',39
+0001AE E020 C382 0028 00388         126          XPRNT =C' CODE  AMOUNT         RATE   CURRENT BAL',40
+0001B4 07FB                         127          BR    11
+                                    128 *
+
+SETUP                                                                                                                       PAGE 6
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+
+INITIAL                                                                                                                     PAGE 7
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                    131 *        DECLARE SUBROUTINES
+                                    132 *        INITIAL
+                                    133 *        PURPOSE: SETS THE INITAL BALANCE AMOUNT BASED ON INPUT
+                                    134 *        THIS MUST BE CALLED BEFORE ANYTHING ELSE AND ONLY CALLED
+                                    135 *        ONCE
+0001B6 F248 C12A C11C 00130 00122   136 INITIAL  PACK  BALANCE(5),CARD+1(9)
+0001BC F844 C134 C12A 0013A 00130   137          ZAP   COSTAREA(5),BALANCE(5)
+0001C2 4570 C298            0029E   138          BAL   7,PRINTVAL
+0001C6 E020 C425 000D 0042B         139          XPRNT =C'+            ',13
+0001CC F844 C139 C12A 0013F 00130   140          ZAP   MINAREA(5),BALANCE(5)
+0001D2 F844 C134 C12A 0013A 00130   141          ZAP   COSTAREA(5),BALANCE(5)
+0001D8 4570 C298            0029E   142          BAL   7,PRINTVAL
+                                    143 *        LET DRIVER KNOW THAT INITIAL VALUE HAS BEEN SET
+0001DC 92E3 C164      0016A         144          MVI   HAVEINIT,C'T'
+0001E0 07FB                         145          BR    11
+                                    146 *
+
+INITIAL                                                                                                                     PAGE 8
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+
+DEPOSIT                                                                                                                     PAGE 9
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                    149 *        DEPOSIT
+                                    150 *        PURPOSE: ADDS INPUT AMOUNT TO BALANCE AND PRINTS IT OUT
+0001E2 F248 C12F C11C 00135 00122   151 DEPOSIT  PACK  PKDINPUT(5),CARD+1(9)
+0001E8 F844 C134 C12F 0013A 00135   152          ZAP   COSTAREA(5),PKDINPUT(5)
+0001EE 4570 C298            0029E   153          BAL   7,PRINTVAL
+0001F2 E020 C425 000D 0042B         154          XPRNT =C'+            ',13
+0001F8 FA44 C12A C12F 00130 00135   155          AP    BALANCE(5),PKDINPUT(5)
+                                    156 *        PRINT 'EM
+0001FE F844 C134 C12A 0013A 00130   157          ZAP   COSTAREA(5),BALANCE(5)
+000204 4570 C298            0029E   158          BAL   7,PRINTVAL
+                                    159 *        ADD INPUT AND COUNT THIS AS A DEPOSIT
+000208 FA44 C16E C12F 00174 00135   160          AP    DPTOTAL(5),PKDINPUT(5)
+00020E FA10 C16C C432 00172 00438   161          AP    DPCOUNT(2),=P'1'
+000214 07FB                         162          BR    11
+                                    163 *
+
+DEPOSIT                                                                                                                     PAGE 10
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+
+WITHDRAW                                                                                                                    PAGE 11
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                    166 *        WITHDRAW
+                                    167 *        PURPOSE: SUBTRACTS INPUT AMOUNT FROM BALANCE AND PRINTS IT
+                                    168 *        OUT
+000216 F248 C12F C11C 00135 00122   169 WITHDRAW PACK  PKDINPUT(5),CARD+1(9)
+00021C F844 C134 C12F 0013A 00135   170          ZAP   COSTAREA(5),PKDINPUT(5)
+000222 4570 C298            0029E   171          BAL   7,PRINTVAL
+000226 E020 C425 000D 0042B         172          XPRNT =C'+            ',13
+00022C FB44 C12A C12F 00130 00135   173          SP    BALANCE(5),PKDINPUT(5)
+                                    174 *        PRINT 'EM
+000232 F844 C134 C12A 0013A 00130   175          ZAP   COSTAREA(5),BALANCE(5)
+000238 4570 C298            0029E   176          BAL   7,PRINTVAL
+                                    177 *        FIND THE MINIMUM VALUE
+00023C 4570 C248            0024E   178          BAL   7,MINIMUM
+                                    179 *        COUNT THE AMOUNT AND ADD IT TO PRINT LATER FOR TOTAL
+000240 FA44 C167 C12F 0016D 00135   180          AP    WDTOTAL(5),PKDINPUT(5)
+000246 FA10 C165 C432 0016B 00438   181          AP    WDCOUNT(2),=P'1'
+00024C 07FB                         182          BR    11
+                                    183 *
+
+WITHDRAW                                                                                                                    PAGE 12
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+
+MINIMUM                                                                                                                     PAGE 13
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                    186 *        MINIMUM
+                                    187 *        PURPOSE: FIGURES OUT IF THE CURRENT BALANCE IS THE MINIMUM
+                                    188 *        VALUE
+00024E F944 C12A C139 00130 0013F   189 MINIMUM  CP    BALANCE(5),MINAREA(5)
+000254 47B0 C258            0025E   190          BC    B'1011',MINEND
+000258 F844 C139 C12A 0013F 00130   191          ZAP   MINAREA(5),BALANCE(5)
+00025E 07F7                         192 MINEND   BR    7
+                                    193 *
+
+MINIMUM                                                                                                                     PAGE 14
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+
+INTEREST                                                                                                                    PAGE 15
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                    196 *        INTEREST
+                                    197 *        PURPOSE: CALCULATES THE INTEREST BY MULTIPLYING THE RATE BY
+                                    198 *        THE MINIMUM VALUE CURRENTLY STORED AND ADDING IT TO THE
+                                    199 *        CURRENT BALANCE
+000260 E020 C425 000D 0042B         200 INTEREST XPRNT =C'+            ',13
+000266 F212 C145 C11C 0014B 00122   201          PACK  RATE(2),CARD+1(3)
+                                    202 *        PRINT THE INTEREST RATE
+00026C 4570 C2CA            002D0   203          BAL   7,PRNTINTR
+                                    204 *        WE WOULDN'T WANT TO DIVIDE BY ZERO ;)
+000270 F910 C145 C3FD 0014B 00403   205          CP    RATE(2),=P'0'
+000276 4780 C28C            00292   206          BC    B'1000',INTREND
+00027A F864 C13E C139 00144 0013F   207          ZAP   MINTEMP(7),MINAREA(5)
+000280 FC61 C13E C145 00144 0014B   208          MP    MINTEMP(7),RATE(2)
+000286 FD62 C13E C154 00144 0015A   209          DP    MINTEMP(7),TOCENTS(3)
+00028C FA43 C12A C13E 00130 00144   210          AP    BALANCE(5),MINTEMP(4)
+000292 F844 C134 C12A 0013A 00130   211 INTREND  ZAP   COSTAREA(5),BALANCE(5)
+000298 4570 C298            0029E   212          BAL   7,PRINTVAL
+00029C 07FB                         213          BR    11
+                                    214 *
+
+INTEREST                                                                                                                    PAGE 16
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+
+PRINTVAL                                                                                                                    PAGE 17
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                    217 *        PRINTVAL
+                                    218 *        PURPOSE: PRINTS OUT A NUMERIC DOLLAR VALUE
+00029E D20B C158 C3AA 0015E 003B0   219 PRINTVAL MVC   OUTAREA(12),=X'40202020202021204B202060'
+0002A4 DE0B C158 C134 0015E 0013A   220          ED    OUTAREA(12),COSTAREA
+0002AA E020 C157 000D 0015D         221          XPRNT OUTPUT,13
+0002B0 07F7                         222          BR    7
+                                    223 *
+
+PRINTVAL                                                                                                                    PAGE 18
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+
+PRNTDOLR                                                                                                                    PAGE 19
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                    226 *        PRNTDOLR
+                                    227 *        PURPOSE: DOES THE SAME THING THAT PRINTVAL DOES EXCEPT
+                                    228 *        WITH A DOLLAR SIGN IN FRONT
+0002B2 4110 C15E            00164   229 PRNTDOLR LA    1,OUTAREA+6
+0002B6 D20B C158 C3AA 0015E 003B0   230          MVC   OUTAREA(12),=X'40202020202021204B202060'
+0002BC DF0B C158 C134 0015E 0013A   231          EDMK  OUTAREA(12),COSTAREA
+0002C2 0610                         232          BCTR  1,0
+0002C4 925B 1000      00000         233          MVI   0(1),C'$'
+0002C8 E020 C157 000D 0015D         234          XPRNT OUTPUT,13
+0002CE 07F7                         235          BR    7
+                                    236 *
+
+PRNTDOLR                                                                                                                    PAGE 20
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+
+PRNTINTR                                                                                                                    PAGE 21
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                    239 *        PRNTINTR
+                                    240 *        PURPOSE: PRINTS THE INTEREST RATE
+0002D0 D204 C14F C433 00155 00439   241 PRNTINTR MVC   RATEOUT(5),=X'40214B2020'
+0002D6 DE04 C14F C145 00155 0014B   242          ED    RATEOUT(5),RATE
+0002DC E020 C147 000D 0014D         243          XPRNT RATEPRNT,13
+0002E2 07F7                         244          BR    7
+                                    245 *
+
+PRNTINTR                                                                                                                    PAGE 22
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+
+PRTFINAL                                                                                                                    PAGE 23
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                    248 *        PRTFINAL
+                                    249 *        PURPOSE: PRINTS TOTAL & AVERAGE DEPOSITS AND WITHDRAWALS
+                                    250 *        FIRST PRINT THE NUMBER OF DEPOSITS
+0002E4 D203 C174 C3B6 0017A 003BC   251 PRTFINAL MVC   COUNTOUT(4),=X'40202120'
+0002EA DE03 C174 C16C 0017A 00172   252          ED    COUNTOUT(4),DPCOUNT
+0002F0 E020 C438 000B 0043E         253          XPRNT =C'0DEPOSITS: ',11
+0002F6 E020 C173 0005 00179         254          XPRNT COUNTPRT,5
+                                    255 *        PRINT DEPOSIT AMOUNT
+0002FC E020 C443 0011 00449         256          XPRNT =C' DEPOSIT AMOUNT: ',17
+000302 F844 C134 C16E 0013A 00174   257          ZAP   COSTAREA(5),DPTOTAL(5)
+000308 4570 C2AC            002B2   258          BAL   7,PRNTDOLR
+                                    259 *        MAKE SURE THAT THE COUNT ISN'T 0
+00030C F910 C16C C3FD 00172 00403   260          CP    DPCOUNT(2),=P'0'
+000312 4780 C32C            00332   261          BC    B'1000',SKIPTOWD
+                                    262 *        FIND AVERAGES AND PRINT IT OUT
+000316 F864 C17D C16E 00183 00174   263          ZAP   AVERAGE(7),DPTOTAL(5)
+00031C FD61 C17D C16C 00183 00172   264          DP    AVERAGE(7),DPCOUNT(2)
+000322 E020 C3BA 0012 003C0         265          XPRNT =C' DEPOSIT AVERAGE: ',18
+000328 F844 C134 C17D 0013A 00183   266          ZAP   COSTAREA(5),AVERAGE(5)
+00032E 4570 C2AC            002B2   267          BAL   7,PRNTDOLR
+                                    268 *        PRINT THE NUMBER OF WITHDRAWALS
+000332 D203 C174 C3B6 0017A 003BC   269 SKIPTOWD MVC   COUNTOUT(4),=X'40202120'
+000338 DE03 C174 C165 0017A 0016B   270          ED    COUNTOUT(4),WDCOUNT
+00033E E020 C3CC 000E 003D2         271          XPRNT =C'0WITHDRAWALS: ',14
+000344 E020 C173 0005 00179         272          XPRNT COUNTPRT,5
+                                    273 *        PRINT WITHDRAW AMOUNT
+00034A E020 C3DA 0012 003E0         274          XPRNT =C' WITHDRAW AMOUNT: ',18
+000350 F844 C134 C167 0013A 0016D   275          ZAP   COSTAREA(5),WDTOTAL(5)
+000356 4570 C2AC            002B2   276          BAL   7,PRNTDOLR
+                                    277 *        MAKE SURE THAT THE WDCOUNT IS NOT ZERO
+00035A F910 C165 C3FD 0016B 00403   278          CP    WDCOUNT(2),=P'0'
+000360 4780 C37A            00380   279          BC    B'1000',SKIPTOED
+                                    280 *        FIND AVERAGES AND PRINT IT OUT
+000364 F864 C17D C167 00183 0016D   281          ZAP   AVERAGE(7),WDTOTAL(5)
+00036A FD61 C17D C165 00183 0016B   282          DP    AVERAGE(7),WDCOUNT(2)
+000370 E020 C454 0013 0045A         283          XPRNT =C' WITHDRAW AVERAGE: ',19
+000376 F844 C134 C17D 0013A 00183   284          ZAP   COSTAREA(5),AVERAGE(5)
+00037C 4570 C2AC            002B2   285          BAL   7,PRNTDOLR
+000380 07FB                         286 SKIPTOED BR    11
+                                    287 *
+                                    288 *        END OF LINE
+                                    289          END   COLE7
+000388 40C3D6C4C54040C1                          =C' CODE  AMOUNT         RATE   CURRENT BAL'
+0003B0 4020202020202120                          =X'40202020202021204B202060'
+0003BC 40202120                                  =X'40202120'
+0003C0 40C4C5D7D6E2C9E3                          =C' DEPOSIT AVERAGE: '
+0003D2 F0E6C9E3C8C4D9C1                          =C'0WITHDRAWALS: '
+0003E0 40E6C9E3C8C4D9C1                          =C' WITHDRAW AMOUNT: '
+0003F2 F0C3E4D9D9C5D5E3                          =C'0CURRENT BALANCE:'
+000403 0C                                        =P'0'
+000404 60404040404040E2                          =C'-      SAVINGS  ACCOUNT  REPORT        '
+00042B 4E40404040404040                          =C'+            '
+000438 1C                                        =P'1'
+
+PRTFINAL                                                                                                                    PAGE 24
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+000439 40214B2020                                =X'40214B2020'
+00043E F0C4C5D7D6E2C9E3                          =C'0DEPOSITS: '
+000449 40C4C5D7D6E2C9E3                          =C' DEPOSIT AMOUNT: '
+00045A 40E6C9E3C8C4D9C1                          =C' WITHDRAW AVERAGE: '
+
+***   0 STATEMENTS FLAGGED - 0 WARNINGS, 0 ERRORS
+
+*** PROGRAM EXECUTION BEGINNING -
+ANY OUTPUT BEFORE EXECUTION COMPLETE MESSAGE IS PRODUCED BY USER PROGRAM ***
+
+
+
+      SAVINGS  ACCOUNT  REPORT        
+CODE  AMOUNT         RATE   CURRENT BAL
+0      63.12                   63.12 
+1     500.00                  563.12 
+1       3.00                  566.12 
+2     300.00                  266.12 
+2       4.50                  261.62 
+1       4.30                  265.92 
+3                     .10     265.98 
+2      30.00                  235.98 
+1     400.00                  635.98 
+2      40.00                  595.98 
+2      20.00                  575.98 
+
+DEPOSITS:    4
+DEPOSIT AMOUNT:     $907.30 
+DEPOSIT AVERAGE:     $226.82 
+
+WITHDRAWALS:    5
+WITHDRAW AMOUNT:     $394.50 
+WITHDRAW AVERAGE:      $78.90 
+
+CURRENT BALANCE:    $575.98 
+
+
+      SAVINGS  ACCOUNT  REPORT        
+CODE  AMOUNT         RATE   CURRENT BAL
+0   12000.00                12000.00 
+
+DEPOSITS:    0
+DEPOSIT AMOUNT:      $ 0.00 
+
+WITHDRAWALS:    0
+WITHDRAW AMOUNT:      $ 0.00 
+
+CURRENT BALANCE:  $12000.00 
+
+
+      SAVINGS  ACCOUNT  REPORT        
+CODE  AMOUNT         RATE   CURRENT BAL
+0       0.00                    0.00 
+
+DEPOSITS:    0
+DEPOSIT AMOUNT:      $ 0.00 
+
+WITHDRAWALS:    0
+WITHDRAW AMOUNT:      $ 0.00 
+
+CURRENT BALANCE:     $ 0.00 
+
+
+      SAVINGS  ACCOUNT  REPORT        
+CODE  AMOUNT         RATE   CURRENT BAL
+0     500.00                  500.00 
+1      25.00                  525.00 
+3                    7.50     562.50 
+2      25.00                  537.50 
+2     129.45                  408.05 
+1    5693.00                 6101.05 
+1       0.20                 6101.25 
+
+DEPOSITS:    3
+DEPOSIT AMOUNT:    $5718.20 
+DEPOSIT AVERAGE:    $1906.06 
+
+WITHDRAWALS:    2
+WITHDRAW AMOUNT:     $154.45 
+WITHDRAW AVERAGE:      $77.22 
+
+CURRENT BALANCE:   $6101.25 
+
+*** EXECUTION COMPLETED ***
+

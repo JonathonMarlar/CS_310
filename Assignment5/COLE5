@@ -1,0 +1,151 @@
+COLE5    START
+*
+*        JONATHON COLE MARLAR
+*        ASSIGNMENT #5
+*        4 APRIL 2014
+*
+*        INPUT:    A FILE CONTAINING AN UNKNOWN AMOUNT OF
+*                  TEXT IN THE ORDER:
+*                  FIRSTNAME MIDDLENAME LASTNAME
+*                  STREET ADDRESS
+*                  CITY
+*                  STATE INITIALS
+*                  ZIP CODE (5 DIGITS)
+*        EXECUTED: WILL ORGANIZE DATA USING STRING MANIPULATION
+*                  TO CREATE THE OUTPUT
+*        OUTPUT:   THE DATA IN THE FORM:
+*                  LASTNAME, FIRSTNAME M(IDDLE INITIAL)
+*                  STREET ADDRESS
+*                  CITY, STATE ZIP
+*
+*        BEGINNING HOUSEKEEPING
+         STM   14,12,12(13)
+         BALR  12,0
+         USING HERE,12
+HERE     ST    13,SAVEAREA+4
+         LA    13,SAVEAREA
+*
+*        MAIN PROGRAM
+*
+*        REG KEY:
+*        11 : USED TO CALL SUBROUTINES
+MAINLOOP XREAD CARD,50
+*        END THE PROGRAM IF END OF FILE
+         BC    B'0100',ENDPROG
+         BAL   11,GETNAME
+         XREAD CARD,50
+         XPRNT PRNTCARD,51
+         XREAD CARD,50
+         BAL   11,CITSTZIP
+         BC    B'1111',MAINLOOP
+*
+*        END HOUSEKEEPING
+ENDPROG  L     13,SAVEAREA+4
+         LM    14,12,12(13)
+         BR    14
+SAVEAREA DS    18F
+*
+*        DECLARE STORAGE AND CONSTANTS
+PRNTCARD DC    C' '
+CARD     DS    CL50
+PRNTNAME DC    C'-'
+NAMECARD DS    CL50
+STATE    DS    CL2
+ZIP      DS    CL5
+*
+*        DEFINE SUBROUTINES
+*
+         EJECT
+         TITLE 'GETNAME SUBROUTINE'
+*        GETNAME
+*        PURPOSE:
+*        FROM CARD, RE-FORMATS IT FROM FIRSTNAME MIDDLE LASTNAME
+*        TO LASTNAME, FIRSTNAME MI AND PRINTS IT
+*
+*        REG KEY:
+*        2  : POINTS TO DATA IN CARD
+*        3  : POINTS TO DATA IN NAMECARD (WHERE THE NEW FORMATTED
+*             NAME IS STORED)
+*        4  : COUNTER TO LOOP THROUGH FINDING A SPACE
+*        5  : COUNTER THAT, COMPARED TO 1 TO CHANGE THE CC, WILL
+*             HELP CALCULATE WHAT DATA WE'RE DEALING WITH (FIRST,
+*             MIDDLE, OR LAST)
+*
+GETNAME  LA    2,CARD
+         LA    3,NAMECARD
+         LA    4,2
+         SR    5,5
+*        CASCADE A BLANK FOR NAMECARD
+         MVI   NAMECARD,C' '
+         MVC   NAMECARD+1(49),NAMECARD
+*        FIND THE BLANK
+SEARCHBL LA    2,1(2)
+         CLI   0(2),C' '
+         BC    B'1000',MATCH
+         BC    B'1111',SEARCHBL
+MATCH    BCTR  4,0
+*        KEEP LOOKING IF TRYING TO FIND LAST NAME
+         C     4,=F'0'
+         BC    B'0010',SEARCHBL
+         C     5,=F'1'
+         BC    B'1000',FIRST
+         BC    B'0010',MIDDLE
+*        IF WE FOUND THE LAST NAME, INCREMENT BY ONE
+         LA    2,1(2)
+*        THE MAIN LOOP TO INSERT A NAME
+INSRTNM  MVC   0(1,3),0(2)
+         LA    2,1(2)
+         LA    3,1(3)
+         CLI   0(2),C' '
+         BC    B'0111',INSRTNM
+*        IF WE'RE DEALING WITH THE LAST NAME, THEN PRINT A COMMA
+         C     5,=F'1'
+         BC    B'1011',PRTSPACE
+         MVI   0(3),C','
+         LA    3,1(3)
+PRTSPACE MVI   0(3),C' '
+         LA    3,1(3)
+*        RESET REGISTER 2 TO POINT TO CARD
+         LA    2,CARD
+*        REG 5 NEEDS TO CHANGE TO KNOW WHAT NAME WE ARE GETTING
+         LA    5,1(5)
+         BC    B'1111',SEARCHBL
+FIRST    LA    2,CARD
+         LA    4,1
+         BC    B'1111',INSRTNM
+*        MIDDLE WILL BE THE LAST THING THIS SUBROUTINE WILL DO
+MIDDLE   LA    2,1(2)
+         MVC   0(1,3),0(2)
+         LA    3,1(3)
+         MVI   0(3),C'.'
+         XPRNT PRNTNAME,51
+         BR    11
+*
+         EJECT
+         TITLE 'CITSTZIP SUBROUTINE'
+*        CITSTZIP
+*        PURPOSE:
+*        PLACES CITY, STATE, AND ZIPCODE FROM THREE DIFFERENT
+*        LINES INTO ONE LINE TO PRINT OUT
+*
+*        REG KEY:
+*        2  : POINTS TO DATA IN CARD
+*
+CITSTZIP LA    2,CARD+49
+*        GO BACKWARDS TO FIND CITY
+CHECKRT  CLI   0(2),C' '
+         BC    B'0010',FOUNDRT
+         BCTR  2,0
+         BC    B'1111',CHECKRT
+FOUNDRT  MVI   1(2),C','
+*        GET STATE AND ZIP INFO
+         XREAD STATE,2
+         MVC   3(2,2),STATE
+         XREAD ZIP,5
+         MVC   7(5,2),ZIP
+         XPRNT CARD-1,50
+         BR    11
+*
+         END   COLE5
+$ENTRY NAMES.TXT
+

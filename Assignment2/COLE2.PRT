@@ -1,0 +1,143 @@
+
+ASSIST/I Version 2.03, Copyright 1984, BDM Software.                          GRADE RUN FOR: 
+
+
+                                                                                                                            PAGE 1
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+000000                                1 COLE2    START
+                                      2 *
+                                      3 *        JONATHON COLE MARLAR
+                                      4 *        2/26/2014
+                                      5 *        ASSIGNMENT #2
+                                      6 *
+                                      7 *        INPUT:      DATA FROM A FILE HOLDING THE QUANTITY
+                                      8 *                    AND THE PRICE OF AN ITEM PER LINE
+                                      9 *        EXECUTION:  PRINTS DATA INPUTED AND CALCULATES THE
+                                     10 *                    AVERAGE NUMBER OF ITEMS PER PURCHASE AND
+                                     11 *                    THE AVERAGE COST PER ITEM
+                                     12 *        OUTPUT:     THE QUANTITY, COST PER ITEM, AND TOTAL COST
+                                     13 *                    OF EACH ITEM PER LINE, WITH A FINAL OUTPUT
+                                     14 *                    DETAILING THE AVERAGE NUMBER OF ITEMS AND COST
+                                     15 *
+                                     16 *        REGISTER KEY
+                                     17 *        REG 2:      USED ONLY FOR ARITHMETIC SYNTAX
+                                     18 *
+                                     19 *        REG 3:      HOLDS THE QUANTITY READ IN FROM FILE
+                                     20 *
+                                     21 *        REG 4:      HOLDS THE PRICE OF ONE ITEM READ FROM FILE
+                                     22 *
+                                     23 *        REG 5:      STORES DATA FROM XREAD CARD,80
+                                     24 *
+                                     25 *        REG 6:      USED ONLY FOR ARITHMETIC SYNTAX
+                                     26 *
+                                     27 *        REG 7:      HOLDS THE SUM FOR THE QUANTITY;
+                                     28 *                    WILL LATER BE USED TO STORE AVG QUANTITY
+                                     29 *
+                                     30 *        REG 8:      USED ONLY FOR ARITHMETIC SYNTAX
+                                     31 *
+                                     32 *        REG 9:      HOLDS THE SUM FOR THE TOTAL COST;
+                                     33 *                    WILL LATER BE USED TO STORE AVG PRICE
+                                     34 *
+                                     35 *        REG 10:     HOLDS A COPY OF THE PRICE FROM REG 3 TO PRINT
+                                     36 *
+                                     37 *        REG 11:     HOLDS THE NUMBER OF LINES READ IN FROM FILE
+                                     38 *
+                                     39 *
+                                     40 *        BEGINNING HOUSEKEEPING
+000000 90EC D00C            0000C    41          STM   14,12,12(13)
+000004 05C0                          42          BALR  12,0
+000006                               43          USING HERE,12
+000006 50D0 C07A            00080    44 HERE     ST    13,SAVEAREA+4
+00000A 41D0 C076            0007C    45          LA    13,SAVEAREA
+                                     46 *
+                                     47 *
+                                     48 *        SETUP REGISTERS - SEE REG KEY FOR DETAILS
+00000E 4170 0000            00000    49          LA    7,0
+000012 4190 0000            00000    50          LA    9,0
+000016 41B0 0000            00000    51          LA    11,0
+
+                                                                                                                            PAGE 2
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+00001A 5C60 C16A            00170    52          M     6,=F'1'
+00001E 5C80 C16A            00170    53          M     8,=F'1'
+                                     54 *
+                                     55 *
+                                     56 *        A HEADER FOR ORGANIZATION
+000022 E020 C16E 0025 00174          57          XPRNT =C'     QUANTITY       PRICE  TOTAL COST',37
+                                     58 *        BEGINNING DATA READ LOOP TO READ IN THE FILE
+000028 E000 C0BE 0050 000C4          59 READFILE XREAD CARD,80
+00002E 4740 C05A            00060    60          BC    B'0100',EXITREAD
+000032 5350 C0BE            000C4    61          XDECI 5,CARD
+000036 1835                          62          LR    3,5
+000038 5351 0000            00000    63          XDECI 5,0(1)
+00003C 1845                          64          LR    4,5
+                                     65 *        CONTENTS OF REG 3 WILL BE EDITED, SO LET REG 10 HOLD A COPY
+00003E 18A3                          66          LR    10,3
+000040 1C24                          67          MR    2,4
+                                     68 *        REMEMBER THAT THESE WILL LATER BE USED TO FIND THE AVG
+000042 1A7A                          69          AR    7,10
+000044 1A93                          70          AR    9,3
+000046 41BB 0001            00001    71          LA    11,1(11)
+                                     72 *        PRINT THE RESULTS
+00004A 52A0 C10F            00115    73          XDECO 10,QUANT
+00004E 5240 C11B            00121    74          XDECO 4,PERCOST
+000052 5230 C127            0012D    75          XDECO 3,TOTCOST
+000056 E020 C10E 0025 00114          76          XPRNT NUMLINE,37
+00005C 47F0 C022            00028    77          BC    B'1111',READFILE
+                                     78 *
+                                     79 *
+                                     80 *        FIND THE AVERAGE NUMBER OF ITEMS AND AVERAGE COST
+000060 1D6B                          81 EXITREAD DR    6,11
+000062 1D87                          82          DR    8,7
+000064 5270 C13D            00143    83          XDECO 7,AVGITEM
+000068 5290 C157            0015D    84          XDECO 9,AVGCOST
+00006C E020 C133 0030 00139          85          XPRNT AVGLINE,48
+                                     86 *
+                                     87 *
+                                     88 *        END HOUSEKEEPING
+000072 58D0 C07A            00080    89          L     13,SAVEAREA+4
+000076 98EC D00C            0000C    90          LM    14,12,12(13)
+00007A 07FE                          91          BR    14
+00007C                               92 SAVEAREA DS    18F
+                                     93 *
+                                     94 *
+                                     95 *        DECLARE STORAGE AND CONSTANTS
+0000C4                               96 CARD     DS    CL80
+000114 40                            97 NUMLINE  DC    C' '
+000115                               98 QUANT    DS    CL12
+000121                               99 PERCOST  DS    CL12
+00012D                              100 TOTCOST  DS    CL12
+000139 F0                           101 AVGLINE  DC    C'0'
+00013A C1E5C740D5E4D47A             102          DC    C'AVG NUM: '
+000143                              103 AVGITEM  DS    CL12
+00014F 40404040C1E5C740             104          DC    C'    AVG COST: '
+
+                                                                                                                            PAGE 3
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+00015D                              105 AVGCOST  DS    CL12
+                                    106          END   COLE2
+000170 00000001                                  =F'1'
+000174 4040404040D8E4C1                          =C'     QUANTITY       PRICE  TOTAL COST'
+
+***   0 STATEMENTS FLAGGED - 0 WARNINGS, 0 ERRORS
+
+*** PROGRAM EXECUTION BEGINNING -
+ANY OUTPUT BEFORE EXECUTION COMPLETE MESSAGE IS PRODUCED BY USER PROGRAM ***
+
+    QUANTITY       PRICE  TOTAL COST
+         100        9001      900100
+          34         206        7004
+          13          37         481
+           9          89         801
+          72        8405      605160
+          47        4000      188000
+        1900         190      361000
+         800         400      320000
+
+AVG NUM:          371    AVG COST:         6421
+
+*** EXECUTION COMPLETED ***
+

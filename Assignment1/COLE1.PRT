@@ -1,0 +1,106 @@
+
+ASSIST/I Version 2.03, Copyright 1984, BDM Software.                          GRADE RUN FOR: 
+
+
+                                                                                                                            PAGE 1
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+000000                                1 COLE1    START
+                                      2 *
+                                      3 *        JONATHON COLE MARLAR
+                                      4 *        2/17/2014
+                                      5 *        ASSIGNMENT #1
+                                      6 *
+                                      7 *        INPUT:    THREE INTEGERS (0-100) PER LINE FROM A FILE
+                                      8 *        ACTIONS:  CALCULATES THE SUM OF THREE INTEGERS
+                                      9 *                  AND PRINTS A LETTER GRADE BASED ON THE SUM
+                                     10 *        OUTPUT:   THE LETTER GRADE (A, B, C, OR U)
+                                     11 *
+                                     12 *
+                                     13 *              BEGINNING HOUSEKEEPING
+000000 90EC D00C            0000C    14          STM   14,12,12(13)
+000004 05C0                          15          BALR  12,0
+000006                               16          USING HERE,12
+000006 50D0 C082            00088    17 HERE     ST    13,SAVEAREA+4
+00000A 41D0 C07E            00084    18          LA    13,SAVEAREA
+                                     19 *
+                                     20 *
+                                     21 *              INITIALIZE REGISTERS FOR USE
+00000E 1B22                          22          SR    2,2                     REG 2 HOLDS AVERAGES
+000010 5830 C11A            00120    23          L     3,LIMITA
+000014 5840 C11E            00124    24          L     4,LIMITB
+000018 5860 C122            00128    25          L     6,LIMITC
+                                     26 *
+                                     27 *              DATA ON A LINE IS READ AND STORED IN REG 5
+00001C E000 C0C7 0050 000CD          28 LINEREAD XREAD CARD,80
+000022 4740 C072            00078    29          BC    B'0100',EXITREAD
+000026 5350 C0C7            000CD    30          XDECI 5,CARD
+00002A 1B22                          31          SR    2,2
+                                     32 *              LOOP TO READ EACH NUMER IN THE LINE
+00002C 4710 C034            0003A    33 NUMREAD  BC    B'0001',LINEEND
+000030 1A25                          34          AR    2,5
+000032 5351 0000            00000    35          XDECI 5,0(1)
+000036 47F0 C026            0002C    36          BC    B'1111',NUMREAD
+00003A 47F0 C038            0003E    37 LINEEND  BC    B'1111',GETGRADE
+                                     38 *
+                                     39 *              CALCULATE THE GRADES FROM REG2 AND PRINT THE RESULT
+00003E 1923                          40 GETGRADE CR    2,3
+000040 4740 C048            0004E    41          BC    B'0100',GETB
+000044 E020 C13A 0009 00140          42          XPRNT =C'0GRADE: A',9
+00004A 47F0 C016            0001C    43          BC    B'1111',LINEREAD
+00004E 1924                          44 GETB     CR    2,4
+000050 4740 C058            0005E    45          BC    B'0100',GETC
+000054 E020 C143 0009 00149          46          XPRNT =C'0GRADE: B',9
+00005A 47F0 C016            0001C    47          BC    B'1111',LINEREAD
+00005E 1926                          48 GETC     CR    2,6
+000060 4740 C068            0006E    49          BC    B'0100',GETU
+000064 E020 C14C 0009 00152          50          XPRNT =C'0GRADE: C',9
+00006A 47F0 C016            0001C    51          BC    B'1111',LINEREAD
+
+                                                                                                                            PAGE 2
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+00006E E020 C155 0009 0015B          52 GETU     XPRNT =C'0GRADE: U',9
+000074 47F0 C016            0001C    53          BC    B'1111',LINEREAD
+                                     54 *
+                                     55 *              END HOUSEKEEPING
+000078 58D0 C082            00088    56 EXITREAD L     13,SAVEAREA+4
+00007C 98EC D00C            0000C    57          LM    14,12,12(13)
+000080 07FE                          58          BR    14
+000084                               59 SAVEAREA DS    18F
+                                     60 *
+                                     61 *              CONSTANTS AND STORAGE DECLARATIONS
+0000CC                               62          DS    CL1
+0000CD                               63 CARD     DS    CL80
+00011D 5C                            64          DC    C'*'
+                                     65 *              LIMITS ARE CHANGED TO ACCOMMODATE ROUNDING TO
+                                     66 *              THE NEXT LETTER GRADE
+000120 00000116                      67 LIMITA   DC    F'278'
+000124 000000FB                      68 LIMITB   DC    F'251'
+000128 000000E0                      69 LIMITC   DC    F'224'
+00012C F0                            70 CC       DC    C'0'
+00012D                               71 OUT      DS    CL12
+                                     72          END   COLE1
+000140 F0C7D9C1C4C57A40                          =C'0GRADE: A'
+000149 F0C7D9C1C4C57A40                          =C'0GRADE: B'
+000152 F0C7D9C1C4C57A40                          =C'0GRADE: C'
+00015B F0C7D9C1C4C57A40                          =C'0GRADE: U'
+
+***   0 STATEMENTS FLAGGED - 0 WARNINGS, 0 ERRORS
+
+*** PROGRAM EXECUTION BEGINNING -
+ANY OUTPUT BEFORE EXECUTION COMPLETE MESSAGE IS PRODUCED BY USER PROGRAM ***
+
+
+GRADE: B
+
+GRADE: U
+
+GRADE: C
+
+GRADE: U
+
+GRADE: A
+
+*** EXECUTION COMPLETED ***
+

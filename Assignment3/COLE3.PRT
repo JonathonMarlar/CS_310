@@ -1,0 +1,161 @@
+
+ASSIST/I Version 2.03, Copyright 1984, BDM Software.                          GRADE RUN FOR: 
+
+
+                                                                                                                            PAGE 1
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+000000                                1 COLE3    START
+                                      2 *
+                                      3 *        JONATHON COLE MARLAR
+                                      4 *        3/5/2014
+                                      5 *        ASSIGNMENT #3
+                                      6 *
+                                      7 *        INPUT: TWO INTEGERS PER LINE FROM A FILE THAT IS EXACTLY
+                                      8 *               25 LINES
+                                      9 *        EXECUTION: STORES INTEGERS INTO TWO TABLES
+                                     10 *        OUTPUT: TABLE 1 AND TABLE 2 PRINTED OUT IN A LIST
+                                     11 *
+                                     12 *        REGISTER KEY:
+                                     13 *        REG 2 : USED TO STORE DATA FROM CARD; LATER USED TO STORE
+                                     14 *                AND PRINT VALUES FROM TABLE ENTRIES
+                                     15 *        REG 3 : POINTS TO THE FIRST ENTRY OF TABLE 1; WILL BE USED
+                                     16 *                TO MOVE THROUGH TABLE 1 AS AN INDEX
+                                     17 *        REG 4 : REGISTER OF EVEN-ODD PAIR FOR BXLE; INCREMENTS TABLE 1
+                                        *        REG 5 : POINTS TO THE LAST ENTRY OF TABLE 1
+                                     18 *        REG 6 : UNUSED
+                                     19 *        REG 7 : POINTS TO THE FIRST ENTRY OF TABLE 2; WILL BE USED
+                                     20 *                TO MOVE THROUGH TABLE 2 AS AN INDEX
+                                     21 *        REG 8 : REGISTER OF EVEN-ODD PAIR FOR BXLE; INCREMENTS TABLE 2
+                                        *        REG 9 : POINTS TO THE LAST ENTRY OF TABLE 2
+                                     22 *        REG 10: UNUSED
+                                     23 *        REG 11: UNUSED
+                                     24 *
+                                     25 *        BEGINNING HOUSEKEEPING
+000000 90EC D00C            0000C    26          STM   14,12,12(13)
+000004 05C0                          27          BALR  12,0
+000006                               28          USING HERE,12
+000006 50D0 C086            0008C    29 HERE     ST    13,SAVEAREA+4
+00000A 41D0 C082            00088    30          LA    13,SAVEAREA
+                                     31 *
+                                     32 *
+                                     33 *        INITIALIZE REGISTERS; SEE REG KEY
+00000E 4130 C11A            00120    34          LA    3,TABLE1
+000012 4140 0004            00004    35          LA    4,4
+000016 4150 C17A            00180    36          LA    5,TABLE1+96
+00001A 4170 C17E            00184    37          LA    7,TABLE2
+00001E 4180 0004            00004    38          LA    8,4
+000022 4190 C1DE            001E4    39          LA    9,TABLE2+96
+                                     40 *        DATA IS STORED IN BOTH TABLE1 AND TABLE2
+000026 E000 C0CA 0050 000D0          41 READLINE XREAD CARD,80
+00002C 5320 C0CA            000D0    42          XDECI 2,CARD
+000030 5023 0000            00000    43          ST    2,0(3)
+000034 5321 0000            00000    44          XDECI 2,0(1)
+000038 5027 0000            00000    45          ST    2,0(7)
+                                     46 *        REG7 NEEDS TO POINT TO NEXT PLACE IN TABLE
+00003C 4177 0004            00004    47          LA    7,4(7)
+000040 8734 C020            00026    48          BXLE  3,4,READLINE
+                                     49 *
+
+                                                                                                                            PAGE 2
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                     50 *
+                                     51 *        RESET REG3 TO POINT TO TABLE1 SINCE ITS VALUE WAS CHANGED
+000044 4130 C11A            00120    52          LA    3,TABLE1
+                                     53 *        PRINT OFF TABLE 1 IN A LIST FORM
+000048 E020 C1F2 0009 001F8          54          XPRNT =C'0TABLE 1:',9
+00004E 5823 0000            00000    55 PRTABLE1 L     2,0(3)
+000052 5220 C1E3            001E9    56          XDECO 2,TBLEROW
+000056 E020 C1E2 000D 001E8          57          XPRNT TBLEOUT,13
+00005C 8734 C048            0004E    58          BXLE  3,4,PRTABLE1
+                                     59 *
+                                     60 *
+                                     61 *        RESET REG7 SINCE ITS DATA WAS CHANGED AS WELL
+000060 4170 C17E            00184    62          LA    7,TABLE2
+                                     63 *        PRINT TABLE 2 AS A LIST
+000064 E020 C1FB 0009 00201          64          XPRNT =C'0TABLE 2:',9
+00006A 5827 0000            00000    65 PRTABLE2 L     2,0(7)
+00006E 5220 C1E3            001E9    66          XDECO 2,TBLEROW
+000072 E020 C1E2 000D 001E8          67          XPRNT TBLEOUT,13
+000078 8778 C064            0006A    68          BXLE  7,8,PRTABLE2
+                                     69 *
+                                     70 *
+                                     71 *        END HOUSEKEEPING
+00007C 58D0 C086            0008C    72          L     13,SAVEAREA+4
+000080 98EC D00C            0000C    73          LM    14,12,12(13)
+000084 07FE                          74          BR    14
+000088                               75 SAVEAREA DS    18F
+                                     76 *
+                                     77 *        DECLARE STORAGE AND CONSTANTS
+0000D0                               78 CARD     DS    CL80
+000120                               79 TABLE1   DS    25F
+000184                               80 TABLE2   DS    25F
+0001E8 40                            81 TBLEOUT  DC    C' '
+0001E9                               82 TBLEROW  DS    CL12
+                                     83          END   COLE3
+0001F8 F0E3C1C2D3C540F1                          =C'0TABLE 1:'
+000201 F0E3C1C2D3C540F2                          =C'0TABLE 2:'
+
+***   0 STATEMENTS FLAGGED - 0 WARNINGS, 0 ERRORS
+
+*** PROGRAM EXECUTION BEGINNING -
+ANY OUTPUT BEFORE EXECUTION COMPLETE MESSAGE IS PRODUCED BY USER PROGRAM ***
+
+
+TABLE 1:
+          19
+          49
+          99
+          72
+           1
+           9
+           5
+        9001
+         801
+          55
+         555
+         888
+           8
+           4
+           9
+           8
+          25
+          35
+          25
+           9
+          11
+           4
+           9
+          15
+           2
+
+TABLE 2:
+          20
+          15
+         100
+          69
+          17
+           4
+           8
+          47
+         407
+           3
+          69
+       88888
+           8
+          96
+           5
+           3
+          30
+          40
+          25
+           8
+           3
+           7
+           6
+          20
+           4
+
+*** EXECUTION COMPLETED ***
+

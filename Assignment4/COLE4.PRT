@@ -1,0 +1,222 @@
+
+ASSIST/I Version 2.03, Copyright 1984, BDM Software.                          GRADE RUN FOR: 
+
+
+                                                                                                                            PAGE 1
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+000000                                1 COLE4    START
+                                      2 *
+                                      3 *        JONATHON COLE MARLAR
+                                      4 *        ASSIGNMENT #4
+                                      5 *        21 MARCH 2014
+                                      6 *
+                                      7 *        INPUT:     A FILE OF UP TO 30 LINES, EACH LINE CONTAINING
+                                      8 *                   ONE INTEGER VALUE
+                                      9 *        EXECUTION: INTEGERS IN THE RANGE OF 0-100 WILL BE STORED IN
+                                     10 *                   A TABLE; THE TABLE WILL BE PRINTED AS IS; THE
+                                     11 *                   TABLE WILL BE SORTED AND PRINTED AGAIN
+                                     12 *        OUTPUT:    THE UNSORTED AND SORTED TABLE
+                                     13 *
+                                     14 *        BEGINNING HOUSEKEEPING
+000000 90EC D00C            0000C    15          STM   14,12,12(13)
+000004 05C0                          16          BALR  12,0
+000006                               17          USING HERE,12
+000006 50D0 C032            00038    18 HERE     ST    13,SAVEAREA+4
+00000A 41D0 C02E            00034    19          LA    13,SAVEAREA
+                                     20 *
+                                     21 *        MAIN PROGRAM
+                                     22 *        REG KEY:
+                                     23 *        REG 3 : POINTS TO TABLE; SUBROUTINES WILL NEED TO RESET
+                                     24 *                TO DEFAULT VALUE = TABLE
+                                     25 *        REG 4 : THE INCREMENT SIZE USED TO MOVE THROUGH TABLE;
+                                     26 *                WILL NOT BE AFFECTED BY ANY SUBROUTINE
+                                     27 *        REG 5 : POINTS TO THE END OF TABLE; DEFAULT = TABLE-4
+                                     28 *        REG11 : SUBROUTINE REGISTER; NOT TO BE EDITED
+                                     29 *
+00000E 4130 C0C6            000CC    30          LA    3,TABLE
+000012 4140 0004            00004    31          LA    4,4
+000016 4150 C0C2            000C8    32          LA    5,TABLE-4
+00001A 45B0 C14C            00152    33          BAL   11,READFILE
+00001E 45B0 C184            0018A    34          BAL   11,PRNTABLE
+000022 45B0 C1A2            001A8    35          BAL   11,SORTABLE
+000026 45B0 C184            0018A    36          BAL   11,PRNTABLE
+                                     37 *
+                                     38 *        END HOUSEKEEPING
+00002A 58D0 C032            00038    39          L     13,SAVEAREA+4
+00002E 98EC D00C            0000C    40          LM    14,12,12(13)
+000032 07FE                          41          BR    14
+000034                               42 SAVEAREA DS    18F
+                                     43 *
+                                     44 *        DECLARE STORAGE AND CONSTANTS
+00007C                               45 CARD     DS    CL80
+0000CC                               46 TABLE    DS    30F
+000144 40                            47 TBLEOUT  DC    C' '
+000145                               48 TBLEROW  DS    CL12
+
+READFILE SUBROUTINE                                                                                                         PAGE 2
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                     50 *
+                                     51 *        DEFINE SUBROUTINES
+                                     52 *
+                                     53 *        READFILE
+                                     54 *        PURPOSE: READ IN ONE INTEGER PER LINE FROM INPUT AND,
+                                     55 *                 IF IN RANGE, STORES IT IN TABLE
+                                     56 *
+                                     57 *        REG KEY:
+                                     58 *        REG 3 : POINTS TO TABLE; INCREMENTS THROUGH TABLE AS
+                                     59 *                DATA IS SAVED
+                                     60 *        REG 5 : POINTS TO END OF TABLE; INCREMENTS AS DATA IS SAVED
+                                     61 *        REG 8 : HOLDS TOTAL NUMBER OF LINES ALLOWED; USED AS LOOP
+                                     62 *                CONTROL
+                                     63 *        REG 9 : HOLDS VALUE OF 0 FOR COMPARISON
+                                     64 *        REG10 : HOLDS VALUE OF 100 FOR COMPARISON
+                                     65 *
+000152 4180 001E            0001E    66 READFILE LA    8,30
+000156 4190 0000            00000    67          LA    9,0
+00015A 41A0 0064            00064    68          LA    10,100
+00015E E000 C076 0050 0007C          69 GETLINE  XREAD CARD,80
+                                     70 *        IF EARLY EOF, BRANCH TO END
+000164 4740 C182            00188    71          BC    B'0100',EARLYOUT
+000168 5320 C076            0007C    72          XDECI 2,CARD
+                                     73 *        COMPARE TO 0
+00016C 1929                          74          CR    2,9
+00016E 4740 C17E            00184    75          BC    B'0100',COMPLETE
+                                     76 *        COMPARE TO 100
+000172 192A                          77          CR    2,10
+000174 4720 C17E            00184    78          BC    B'0010',COMPLETE
+                                     79 *        THE NUMBER IS IN RANGE, STORE IT
+000178 5023 0000            00000    80          ST    2,0(3)
+00017C 4133 0004            00004    81          LA    3,4(3)
+000180 4155 0004            00004    82          LA    5,4(5)
+                                     83 *        ONCE IT'S STORED (OR DROPPED), LOOP BACK UP
+000184 4680 C158            0015E    84 COMPLETE BCT   8,GETLINE
+000188 07FB                          85 EARLYOUT BR    11
+                                     86 *        END OF READFILE
+                                     87 *
+
+PRNTABLE SUBROUTINE                                                                                                         PAGE 3
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                     89 *        PRNTABLE
+                                     90 *        PURPOSE: PRINTS THE TABLE
+                                     91 *
+                                     92 *        REG KEY:
+                                     93 *        REG 3 : POINTS TO TABLE; INCREMENTS TO MOVE THROUGH TABLE
+                                     94 *        REG 4 : INCREMENTAL REGISTER; PART OF EVEN-ODD PAIR
+                                     95 *        REG 5 : POINTS TO END OF TABLE
+                                     96 *
+00018A 4130 C0C6            000CC    97 PRNTABLE LA    3,TABLE
+00018E E020 C1DA 0007 001E0          98          XPRNT =C'0TABLE:',7
+000194 5823 0000            00000    99 PRNTROW  L     2,0(3)
+000198 5220 C13F            00145   100          XDECO 2,TBLEROW
+00019C E020 C13E 000D 00144         101          XPRNT TBLEOUT,13
+0001A2 8734 C18E            00194   102          BXLE  3,4,PRNTROW
+0001A6 07FB                         103          BR    11
+                                    104 *        END OF PRNTABLE
+                                    105 *
+
+SORTABLE SUBROUTINE                                                                                                         PAGE 4
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+                                    107 *        SORTABLE
+                                    108 *        PURPOSE: SORTS THE TABLE FROM SMALLEST TO LARGEST INTEGER
+                                    109 *
+                                    110 *        REG KEY:
+                                    111 *        REG 3 : POINTS TO TABLE; INCREMENTS AS TABLE GETS SORTED
+                                    112 *        REG 4 : INCREMENT AMOUNT
+                                    113 *        REG 5 : POINTS TO END OF TABLE
+                                    114 *        REG 6 : HOLDS THE ADDRESSES OF THE TABLE CELLS AS THE SORT
+                                    115 *                PROGRESSES THROUGH THE TABLE
+                                    116 *        REG 7 : HOLDS THE DATA FOUND AT THE ADDRESS HELD BY REG 6
+                                    117 *        REG 8 : STORES THE ADDRESS THAT HELD THE SMALLEST VALUE
+                                    118 *        REG 9 : HOLDS A COPY OF THE DATA STORED AT ADDRESS IN REG 3
+                                    119 *        REG10 : HOLDS THE SMALLEST INTEGER VALUE
+                                    120 *
+0001A8 4130 C0C6            000CC   121 SORTABLE LA    3,TABLE
+                                    122 *        RESET REG 10 TO MAX POSSIBLE VALUE FOR RANGE
+0001AC 41A0 03E7            003E7   123 STRTSRCH LA    10,999
+0001B0 1863                         124          LR    6,3
+0001B2 5876 0000            00000   125 THRUTABL L     7,0(6)
+0001B6 197A                         126          CR    7,10
+                                    127 *        IGNORE THE VALUE IF IT IS NOT SMALLER
+0001B8 47B0 C1BA            001C0   128          BC    B'1011',INCREM
+                                    129 *        OTHERWISE, NOTE THE VALUE AND ADDRESS
+0001BC 18A7                         130          LR    10,7
+0001BE 1886                         131          LR    8,6
+0001C0 4166 0004            00004   132 INCREM   LA    6,4(6)
+0001C4 1965                         133          CR    6,5
+                                    134 *        BRANCH IF WE'RE AT THE END OF THE TABLE
+0001C6 47D0 C1AC            001B2   135          BC    B'1101',THRUTABL
+0001CA 5893 0000            00000   136          L     9,0(3)
+0001CE 50A3 0000            00000   137          ST    10,0(3)
+0001D2 5098 0000            00000   138          ST    9,0(8)
+0001D6 8734 C1A6            001AC   139          BXLE  3,4,STRTSRCH
+0001DA 07FB                         140          BR    11
+                                    141 *        END OF SORTABLE
+                                    142          END   COLE4
+0001E0 F0E3C1C2D3C57A                            =C'0TABLE:'
+
+***   0 STATEMENTS FLAGGED - 0 WARNINGS, 0 ERRORS
+
+*** PROGRAM EXECUTION BEGINNING -
+ANY OUTPUT BEFORE EXECUTION COMPLETE MESSAGE IS PRODUCED BY USER PROGRAM ***
+
+
+TABLE:
+          30
+          40
+          90
+          17
+           0
+          45
+          90
+           2
+           4
+           6
+           8
+           9
+          45
+          87
+          63
+          90
+          99
+         100
+           4
+          28
+          29
+           4
+           5
+           5
+          45
+
+TABLE:
+           0
+           2
+           4
+           4
+           4
+           5
+           5
+           6
+           8
+           9
+          17
+          28
+          29
+          30
+          40
+          45
+          45
+          45
+          63
+          87
+          90
+          90
+          90
+          99
+         100
+
+*** EXECUTION COMPLETED ***
+

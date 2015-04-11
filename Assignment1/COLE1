@@ -1,0 +1,74 @@
+COLE1    START
+*
+*        JONATHON COLE MARLAR
+*        2/17/2014
+*        ASSIGNMENT #1
+*
+*        INPUT:    THREE INTEGERS (0-100) PER LINE FROM A FILE
+*        ACTIONS:  CALCULATES THE SUM OF THREE INTEGERS
+*                  AND PRINTS A LETTER GRADE BASED ON THE SUM
+*        OUTPUT:   THE LETTER GRADE (A, B, C, OR U)
+*
+*
+*              BEGINNING HOUSEKEEPING
+         STM   14,12,12(13)
+         BALR  12,0
+         USING HERE,12
+HERE     ST    13,SAVEAREA+4
+         LA    13,SAVEAREA
+*
+*
+*              INITIALIZE REGISTERS FOR USE
+         SR    2,2                     REG 2 HOLDS AVERAGES
+         L     3,LIMITA
+         L     4,LIMITB
+         L     6,LIMITC
+*
+*              DATA ON A LINE IS READ AND STORED IN REG 5
+LINEREAD XREAD CARD,80
+         BC    B'0100',EXITREAD
+         XDECI 5,CARD
+         SR    2,2
+*              LOOP TO READ EACH NUMER IN THE LINE
+NUMREAD  BC    B'0001',LINEEND
+         AR    2,5
+         XDECI 5,0(1)
+         BC    B'1111',NUMREAD
+LINEEND  BC    B'1111',GETGRADE
+*
+*              CALCULATE THE GRADES FROM REG2 AND PRINT THE RESULT
+GETGRADE CR    2,3
+         BC    B'0100',GETB
+         XPRNT =C'0GRADE: A',9
+         BC    B'1111',LINEREAD
+GETB     CR    2,4
+         BC    B'0100',GETC
+         XPRNT =C'0GRADE: B',9
+         BC    B'1111',LINEREAD
+GETC     CR    2,6
+         BC    B'0100',GETU
+         XPRNT =C'0GRADE: C',9
+         BC    B'1111',LINEREAD
+GETU     XPRNT =C'0GRADE: U',9
+         BC    B'1111',LINEREAD
+*
+*              END HOUSEKEEPING
+EXITREAD L     13,SAVEAREA+4
+         LM    14,12,12(13)
+         BR    14
+SAVEAREA DS    18F
+*
+*              CONSTANTS AND STORAGE DECLARATIONS
+         DS    CL1
+CARD     DS    CL80
+         DC    C'*'
+*              LIMITS ARE CHANGED TO ACCOMMODATE ROUNDING TO
+*              THE NEXT LETTER GRADE
+LIMITA   DC    F'278'
+LIMITB   DC    F'251'
+LIMITC   DC    F'224'
+CC       DC    C'0'
+OUT      DS    CL12
+         END   COLE1
+$ENTRY PROG1.DAT
+

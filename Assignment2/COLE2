@@ -1,0 +1,108 @@
+COLE2    START
+*
+*        JONATHON COLE MARLAR
+*        2/26/2014
+*        ASSIGNMENT #2
+*
+*        INPUT:      DATA FROM A FILE HOLDING THE QUANTITY
+*                    AND THE PRICE OF AN ITEM PER LINE
+*        EXECUTION:  PRINTS DATA INPUTED AND CALCULATES THE
+*                    AVERAGE NUMBER OF ITEMS PER PURCHASE AND
+*                    THE AVERAGE COST PER ITEM
+*        OUTPUT:     THE QUANTITY, COST PER ITEM, AND TOTAL COST
+*                    OF EACH ITEM PER LINE, WITH A FINAL OUTPUT
+*                    DETAILING THE AVERAGE NUMBER OF ITEMS AND COST
+*
+*        REGISTER KEY
+*        REG 2:      USED ONLY FOR ARITHMETIC SYNTAX
+*
+*        REG 3:      HOLDS THE QUANTITY READ IN FROM FILE
+*
+*        REG 4:      HOLDS THE PRICE OF ONE ITEM READ FROM FILE
+*
+*        REG 5:      STORES DATA FROM XREAD CARD,80
+*
+*        REG 6:      USED ONLY FOR ARITHMETIC SYNTAX
+*
+*        REG 7:      HOLDS THE SUM FOR THE QUANTITY;
+*                    WILL LATER BE USED TO STORE AVG QUANTITY
+*
+*        REG 8:      USED ONLY FOR ARITHMETIC SYNTAX
+*
+*        REG 9:      HOLDS THE SUM FOR THE TOTAL COST;
+*                    WILL LATER BE USED TO STORE AVG PRICE
+*
+*        REG 10:     HOLDS A COPY OF THE PRICE FROM REG 3 TO PRINT
+*
+*        REG 11:     HOLDS THE NUMBER OF LINES READ IN FROM FILE
+*
+*
+*        BEGINNING HOUSEKEEPING
+         STM   14,12,12(13)
+         BALR  12,0
+         USING HERE,12
+HERE     ST    13,SAVEAREA+4
+         LA    13,SAVEAREA
+*
+*
+*        SETUP REGISTERS - SEE REG KEY FOR DETAILS
+         LA    7,0
+         LA    9,0
+         LA    11,0
+         M     6,=F'1'
+         M     8,=F'1'
+*
+*
+*        A HEADER FOR ORGANIZATION
+         XPRNT =C'     QUANTITY       PRICE  TOTAL COST',37
+*        BEGINNING DATA READ LOOP TO READ IN THE FILE
+READFILE XREAD CARD,80
+         BC    B'0100',EXITREAD
+         XDECI 5,CARD
+         LR    3,5
+         XDECI 5,0(1)
+         LR    4,5
+*        CONTENTS OF REG 3 WILL BE EDITED, SO LET REG 10 HOLD A COPY
+         LR    10,3
+         MR    2,4
+*        REMEMBER THAT THESE WILL LATER BE USED TO FIND THE AVG
+         AR    7,10
+         AR    9,3
+         LA    11,1(11)
+*        PRINT THE RESULTS
+         XDECO 10,QUANT
+         XDECO 4,PERCOST
+         XDECO 3,TOTCOST
+         XPRNT NUMLINE,37
+         BC    B'1111',READFILE
+*
+*
+*        FIND THE AVERAGE NUMBER OF ITEMS AND AVERAGE COST
+EXITREAD DR    6,11
+         DR    8,7
+         XDECO 7,AVGITEM
+         XDECO 9,AVGCOST
+         XPRNT AVGLINE,48
+*
+*
+*        END HOUSEKEEPING
+         L     13,SAVEAREA+4
+         LM    14,12,12(13)
+         BR    14
+SAVEAREA DS    18F
+*
+*
+*        DECLARE STORAGE AND CONSTANTS
+CARD     DS    CL80
+NUMLINE  DC    C' '
+QUANT    DS    CL12
+PERCOST  DS    CL12
+TOTCOST  DS    CL12
+AVGLINE  DC    C'0'
+         DC    C'AVG NUM: '
+AVGITEM  DS    CL12
+         DC    C'    AVG COST: '
+AVGCOST  DS    CL12
+         END   COLE2
+$ENTRY PROG2.DAT
+
